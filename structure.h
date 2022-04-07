@@ -7,4 +7,4 @@ typedef struct borrower
     int loan_term;
     int amount_of_interest;
     int monthly_payment_amount;
-};
+} user;
