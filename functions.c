@@ -15,39 +15,34 @@ char* enterStr()
 
     while(curChar != '\n')
     {
-        curChar = getchar();
-        int len_change = 0; // Определяет, на сколько изменится длина массива
-        int length_dif = 0;
-        // Если мы ситраем символы, а не пишем их,
+        curChar = (char) getchar();
+        int len_change;
+        int length_dif;
         if (curChar == BACKSPACE_KEY)
         {
-            len_change = -1; // то будем уменьшать длину массива
-            length_dif = 1; // и копировать строку до предпоследнего символа
+            len_change = -1;
+            length_dif = 1;
         }
-            // Иначе проверяем, входит ли введённый символ в диапазон печатных
         else
         {
             if (curChar >= START_CHAR_RANGE && curChar <= END_CHAR_RANGE)
             {
-                len_change = 1; // Если да, то будем увеличиватьдлину на 1
-                length_dif = 2; // Не заполняем последние 2 символа -
-                // оставлем мето для введённого символа и \0
+                len_change = 1;
+                length_dif = 2;
             }
             else
-                continue; // Если это не печатный символ, то пропускаем его
+                continue;
         }
-        // Если стирать больше нечего, но пользователь всё равно жмёт Backspace,
         int newSize = curSize + len_change;
         if (newSize == 0)
-            continue; // то мы переходим на следующую итерацию - ждём '\n'
+            continue;
 
         char* tmpStr = (char*)malloc(newSize * sizeof(char));
 
-        // Идём до предпоследнего символа, т.к. надо в конец записать 0
         for (int i = 0; i < newSize - length_dif; ++i)
             tmpStr[i] = userStr[i];
-        if (curChar != BACKSPACE_KEY) // Если введён печатный символ,
-            tmpStr[newSize - 2] = curChar; // Добавляем его в строку
+        if (curChar != BACKSPACE_KEY)
+            tmpStr[newSize - 2] = curChar;
         tmpStr[newSize - 1] = '\0';
         free(userStr);
         userStr = tmpStr;
@@ -106,7 +101,7 @@ int save(char* filename, user* credit, int users_num) {
 
     if ((fp = fopen(filename, "wb")) == NULL)
     {
-        perror("Error occured while opening file");
+        perror("Error opening file");
         return 1;
     }
 
@@ -121,25 +116,22 @@ int save(char* filename, user* credit, int users_num) {
     {
         putc(*c, fp);
         c++;
-        printf("ha");
-
     }
     fclose(fp);
     return 0;
 }
 
-int load(char * filename) {
+int load(char * filename, user* users_list) {
     FILE * fp;
     char *c;
     int m = sizeof(int);
     int n, i;
-
     int *pti = (int *)malloc(m);
 
     if ((fp = fopen(filename, "r")) == NULL)
     {
-        perror("Error occured while opening file");
-        return 1;
+        perror("Error opening file");
+        return 0;
     }
 
     c = (char *)pti;
@@ -148,24 +140,180 @@ int load(char * filename) {
     {
         i = getc(fp);
         if (i == EOF) break;
-        *c = i;
+        *c = (char) i;
         c++;
         m--;
     }
 
     n = *pti;
+    users_list = malloc(n * sizeof(user));
 
-    user* credits = malloc(n * sizeof(user));
-    c = (char *) credits;
-    // после записи считываем посимвольно из файла
+    c = (char *) users_list;
     while ((i= getc(fp))!=EOF)
     {
-        *c = i;
+        *c = (char) i;
         c++;
     }
 
-    printf("%s", *c);
-
-    printf("%d", n);
-    return 0;
+    return n;
 }
+
+void sort_info() {
+    fputs("1 - Long name\n", stdout);
+    fputs("2 - Loan amount\n", stdout);
+    fputs("3 - Percent\n", stdout);
+    fputs("4 - Loan term\n", stdout);
+    fputs("5 - Amount of interest\n", stdout);
+    fputs("6 - Monthly_payment_amount\n", stdout);
+};
+
+void name_sort(user* users_list, int num_of_users) {
+    for (int i = 0; i < num_of_users - 1; i++) {
+        for (int e = i; e < num_of_users - i - 1; e++) {
+            if (strcmp(users_list[e].full_name, users_list[e + 1].full_name) > 0) {
+                user tmp = users_list[e];
+                users_list[e] = users_list[e + 1];
+                users_list[e + 1] = tmp;
+            }
+        }
+    }
+}
+
+void loan_sort(user* users_list, int num_of_users) {
+    for (int i = 0; i < num_of_users - 1; i++) {
+        for (int e = i; e < num_of_users - i - 1; e++) {
+            if (users_list[e].loan_amount > users_list[e + 1].loan_amount) {
+                user tmp = users_list[e];
+                users_list[e] = users_list[e + 1];
+                users_list[e + 1] = tmp;
+            }
+        }
+    }
+}
+
+void percent_sort(user* users_list, int num_of_users) {
+    for (int i = 0; i < num_of_users - 1; i++) {
+        for (int e = i; e < num_of_users - i - 1; e++) {
+            if (users_list[e].percent > users_list[e + 1].percent) {
+                user tmp = users_list[e];
+                users_list[e] = users_list[e + 1];
+                users_list[e + 1] = tmp;
+            }
+        }
+    }
+}
+
+void term_sort(user* users_list, int num_of_users) {
+    for (int i = 0; i < num_of_users - 1; i++) {
+        for (int e = i; e < num_of_users - i - 1; e++) {
+            if (users_list[e].loan_term > users_list[e + 1].loan_term) {
+                user tmp = users_list[e];
+                users_list[e] = users_list[e + 1];
+                users_list[e + 1] = tmp;
+            }
+        }
+    }
+}
+
+void interest_sort(user* users_list, int num_of_users) {
+    for (int i = 0; i < num_of_users - 1; i++) {
+        for (int e = i; e < num_of_users - i - 1; e++) {
+            if (users_list[e].amount_of_interest > users_list[e + 1].amount_of_interest) {
+                user tmp = users_list[e];
+                users_list[e] = users_list[e + 1];
+                users_list[e + 1] = tmp;
+            }
+        }
+    }
+}
+
+void payment_sort(user* users_list, int num_of_users) {
+    for (int i = 0; i < num_of_users - 1; i++) {
+        for (int e = i; e < num_of_users - i - 1; e++) {
+            if (users_list[e].monthly_payment_amount > users_list[e + 1].monthly_payment_amount) {
+                user tmp = users_list[e];
+                users_list[e] = users_list[e + 1];
+                users_list[e + 1] = tmp;
+            }
+        }
+    }
+}
+
+int name_filter(user* filt_list, int num) {
+    puts("Left name");
+    fflush(stdin);
+    char* left_name = enterStr();
+    puts("Right name");
+    char *right_name = enterStr();
+    for (int i = 0; i < num; i++) {
+        if ((strcmp(filt_list[i].full_name, left_name) < 0) || (strcmp(filt_list[i].full_name, right_name) > 0)) {
+            memmove(&filt_list[i], &filt_list[i + 1], (num - i) * sizeof(user));
+            num--;
+        }
+    }
+    return num;
+}
+
+int amount_filter(user* filt_list, int num) {
+    puts("Left amount and right amount");
+    int left_amount = enterInt();
+    int right_amount = enterInt();
+
+    puts("Left amount and right amount");
+    for (int i = 0; i < num; i++) {
+        if (filt_list[i].loan_amount < left_amount || filt_list[i].loan_amount > right_amount) {
+            memmove(&filt_list[i], &filt_list[i + 1], (num - i) * sizeof(user));
+            num--;
+        }
+    }
+    return (num);
+}
+
+void filter(user* users_list, int num_of_users) {
+    int n;
+    user* filter_list = malloc(sizeof(user) * num_of_users);
+    for (int i = 0; i < num_of_users; i++) {
+        filter_list[i] = users_list[i];
+    }
+    fputs("1 - name\n2 - amount\n3 - percent\n4 - term\n5 - interests\n6 - payment\n", stdout);
+    do {
+        n = enterInt();
+        switch (n) {
+            case 1:
+                num_of_users = name_filter(filter_list, num_of_users);
+                print_info(filter_list, num_of_users);
+                break;
+            case 2:
+                num_of_users = amount_filter(filter_list, num_of_users);
+                print_info(filter_list, num_of_users);
+        }
+    } while (n != 0);
+
+}
+
+void sort_menu(user* list, int users) {
+    int sort_choice;
+    sort_info();
+    sort_choice = enterInt();
+    switch (sort_choice) {
+        case 1:
+            name_sort(list, users);
+            break;
+        case 2:
+            loan_sort(list, users);
+            break;
+        case 3:
+            percent_sort(list, users);
+            break;
+        case 4:
+            term_sort(list, users);
+            break;
+        case 5:
+            interest_sort(list, users);
+            break;
+        case 6:
+            payment_sort(list, users);
+            break;
+    }
+}
+

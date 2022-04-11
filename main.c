@@ -6,20 +6,20 @@
 
 int main() {
     char * filename = "users.dat";
-    int command = 1;
-    int num_of_users = 1;
-    user* credits = calloc(1, sizeof(user));
+    int command;
+    int num_of_users = 0;
+    user* credits;
 
     do {
         puts("Enter the command");
         command = enterInt();
         switch (command) {
             case 1:
-                credits[num_of_users - 1] = user_add();
                 credits = realloc(credits, sizeof(user) * ++num_of_users);
+                credits[num_of_users - 1] = user_add();
                 break;
             case 2:
-                print_info(credits, num_of_users - 1);
+                print_info(credits, num_of_users);
                 break;
             case 3:
                 fputs("Enter the number\n", stdout);
@@ -34,8 +34,13 @@ int main() {
                 save(filename, credits, num_of_users);
                 break;
             case 5:
-                load(filename);
+                num_of_users = load(filename, credits);
                 break;
+            case 6:
+                sort_menu(credits, num_of_users);
+                break;
+            case 7:
+                filter(credits, num_of_users);
         }
     } while (command != -1);
 
